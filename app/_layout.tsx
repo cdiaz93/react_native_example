@@ -8,6 +8,12 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
+
+//Libreria SQLIte
+import { SQLiteProvider } from 'expo-sqlite';
+export const DATABASE_NAME = 'users';
+
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -27,13 +33,29 @@ export default function RootLayout() {
     return null;
   }
 
+    const migrateDbIfNeeded = async(db: SQLiteDatabase) => {
+      const DATABASE_VERSION = 1;
+  
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT,
+        first_name TEXT NOT NULL, 
+        second_name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        message TEXT NOT NULL,
+        intValue INTEGER);
+      `);
+    }
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <SQLiteProvider databaseName="test.db" onInit={migrateDbIfNeeded}>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+      </SQLiteProvider>
   );
 }
