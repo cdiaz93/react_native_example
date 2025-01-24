@@ -10,7 +10,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 
 //Libreria SQLIte
-import { SQLiteProvider } from 'expo-sqlite';
+import { SQLiteProvider, useSQLiteContext, type SQLiteDatabase } from 'expo-sqlite';
 export const DATABASE_NAME = 'users';
 
 
@@ -37,7 +37,7 @@ export default function RootLayout() {
       const DATABASE_VERSION = 1;
   
       await db.execAsync(`
-        CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT,
+        CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY NOT NULL,
         first_name TEXT NOT NULL, 
         second_name TEXT NOT NULL,
         email TEXT NOT NULL,
@@ -48,7 +48,7 @@ export default function RootLayout() {
     }
 
   return (
-    <SQLiteProvider databaseName="test.db" onInit={migrateDbIfNeeded}>
+    <SQLiteProvider databaseName="example.db" onInit={migrateDbIfNeeded}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
