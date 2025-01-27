@@ -11,6 +11,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 //Libreria SQLIte
 import { SQLiteProvider, useSQLiteContext, type SQLiteDatabase } from 'expo-sqlite';
+import { Text } from 'react-native-reanimated/lib/typescript/Animated';
 export const DATABASE_NAME = 'users';
 
 
@@ -52,9 +53,11 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          {/* <Stack.Screen name="(users)" options={{ headerShown: false }} /> */}
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="auto" />
+       
       </ThemeProvider>
       </SQLiteProvider>
   );

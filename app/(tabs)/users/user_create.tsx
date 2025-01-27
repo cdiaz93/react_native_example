@@ -1,13 +1,20 @@
 import React, { useState, useEffect  } from "react";
-import { StyleSheet, Text, TextInput, View, Button, Alert, FlatList } from "react-native";
+import { StyleSheet, Text, TextInput, View, Button, Alert, FlatList, TouchableOpacity } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-// import { useSQLiteContext } from "expo-sqlite";
-import * as SQLite from 'expo-sqlite';
-import { SQLiteProvider, useSQLiteContext, type SQLiteDatabase } from 'expo-sqlite';
 
+//Modelo user
+import { createTable, insertUser } from "@/db/User";
 
-export default function App() {
+interface User {
+  first_name: string;
+  second_name: string;
+  email: string;
+  phone: string;
+  message: string;
+  country: string;
+}
 
+export default function CreateUser() {
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -18,25 +25,16 @@ export default function App() {
     country: "", 
   });
 
- 
-
-
-  const handleInputChange = (name, value) => {
+  const handleInputChange = (name: keyof User, value: string) => {
     setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async () => {
-
     const { first_name, second_name, email, phone, message, country } = formData;
 
     if (first_name && second_name && email && phone && country && message) {
-      const db = await SQLite.openDatabaseAsync('example.db');
+      insertUser(formData);
 
-      db.runAsync("INSERT INTO users(first_name, second_name, email) VALUES (?,?,?);", [
-        first_name,  second_name, email, 
-      ]);
-
-      Alert.alert("Formulario enviado", `¡Gracias, ${formData.first_name}!`);
       setFormData({
         first_name: "",
         second_name:"",
@@ -45,65 +43,19 @@ export default function App() {
         message: "",
         country: "",
       });
+      Alert.alert("Exito", "Usuario registrado.");
     } else {
       Alert.alert("Error", "Por favor, completa todos los campos.");
     }
   };
 
-  const consultar = async () =>{
-    Alert.alert("Error", "ingresando ala funcion");
-
-
-    const db = await SQLite.openDatabaseAsync('example.db');
-    const allRows = await db.getAllAsync('SELECT * FROM users');
-    console.log(allRows);
-    Alert.alert("conteo", allRows.length);
-    for (const row of allRows) {
-      const typedRow = row as { first_name: string; second_name: string; email: string };
-      Alert.alert("Error", typedRow.first_name);
-      Alert.alert("Error", typedRow.second_name);
-      Alert.alert("Error", typedRow.email);
-      // console.log(typedRow.id, typedRow.value, typedRow.intValue);
-    }
-
-    
-  }
-
-  const prueba = async () => {
-    const db = SQLite.openDatabase('myDatabase.db'); // Crea o abre la base de datos
-
-    db.transaction(tx => {
-      tx.executeSql(
-        `CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          age INTEGER
-        );`
-      );
-    });
-
-    db.transaction(tx => {
-      tx.executeSql(
-        `INSERT INTO users (name, age) VALUES (?, ?);`,
-        ['John Doe', 30], // Valores para las columnas `name` y `age`
-        (_, result) => console.log('Insert success:', result), // Callback de éxito
-        (_, error) => console.error('Insert error:', error)   // Callback de error
-      );
-    });
-  }
-
   useEffect(() => {
-  
+    createTable();
   }, []);
 
   return (
-
-
     <View style={styles.container}>
-
-
-      <Text style={styles.title}>Formulario 1</Text>
-
+      <Text style={styles.title}> Registrar usuario </Text>
       <TextInput
         style={styles.input}
         placeholder="Nombres"
@@ -111,7 +63,7 @@ export default function App() {
         onChangeText={(text) => handleInputChange("first_name", text)}
       />
 
-<TextInput
+      <TextInput
         style={styles.input}
         placeholder="Apellidos"
         value={formData.second_name}
@@ -134,7 +86,6 @@ export default function App() {
         onChangeText={(text) => handleInputChange("phone", text)}
       />
 
-      <Text style={styles.label}>Selecciona tu país:</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={formData.country}
@@ -159,9 +110,9 @@ export default function App() {
         onChangeText={(text) => handleInputChange("message", text)}
       />
 
-      <Button title="Enviar" onPress={handleSubmit} />
-
-      <Button title="Consultar" onPress={consultar} />
+      <TouchableOpacity style={styles.buttonSucess} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Guardar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -204,7 +155,20 @@ const styles = StyleSheet.create({
     justifyContent: "center", 
   },
   picker: {
-    color: "#000", // Cambia el color del texto del Picker
+    // color: "#B0C4DE",
+    marginLeft: -10,
   },
+  buttonSucess: {
+    marginTop: 10,
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#4CD964'
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+},
 });
 

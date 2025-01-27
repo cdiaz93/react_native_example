@@ -1,131 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, ScrollView, Button, Alert, TouchableOpacity } from 'react-native';
-import * as SQLite from 'expo-sqlite';
+import { Image, StyleSheet, Platform } from 'react-native';
 
+import { HelloWave } from '@/components/HelloWave';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 
-const App = () => {
-
-    const [data, setData] = useState([]);
-
-    useEffect(() => {
-        newTable();
-        consultar1(setData);
-
-    }, [data]);
-
-    const newTable = async () => {
-
-        const db = await SQLite.openDatabaseAsync('myDatabase.db');
-        // Crear tabla
-        await db.execAsync(`
-            PRAGMA journal_mode = WAL;
-            CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY NOT NULL, value TEXT NOT NULL, intValue INTEGER);
-        `);
-    }
-
-    const registrar = async () => {
-        const db = await SQLite.openDatabaseAsync('myDatabase.db');
-        
-        const randomValue1 = Math.floor(Math.random() * (1000 - 100 + 1)) + 100;
-        
-        await db.execAsync(`
-            PRAGMA journal_mode = WAL;
-            INSERT INTO test (value, intValue) VALUES ('test1', ${randomValue1});
-        `);
-        Alert.alert('Exito', 'Datos Ingresados correctamten en  DB');
-    }
-
-    const eliminar = async () => {
-        const db = await SQLite.openDatabaseAsync('myDatabase.db');
-
-        await db.execAsync(`
-            PRAGMA journal_mode = WAL;
-            DELETE FROM test;
-        `);
-        
-        Alert.alert('Exito', 'Datos eliminados');
-        consultar1(setData);
-    }
-
-
-  const consultar1 = async (setData) => {
-    try {
-      const db = await SQLite.openDatabaseAsync('myDatabase.db');
-      const allRows = await db.getAllAsync('SELECT * FROM test');
-      const formattedData = allRows.map((row) => ({
-        id: row.id,
-        value: row.value,
-        intValue: row.intValue,
-      }));
-      setData(formattedData); // Guarda los datos en el estado
-    } catch (error) {
-      console.error('Error al consultar la base de datos:', error);
-    }
-  };
-
-
+export default function HomeScreen() {
   return (
-    <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <Text>SQLite Example 1 </Text>
-
-            <TouchableOpacity style={styles.butonSucess} onPress={registrar}>
-                <Text style={styles.buttonText}>Registrar</Text>
-            </TouchableOpacity>
-  
-            <TouchableOpacity style={styles.butonDelete} onPress={eliminar}>
-                <Text style={styles.buttonText}>Elimniar</Text>
-            </TouchableOpacity>
-            {data.length > 0 ? (
-                data.map((item) => (
-                <Text key={item.id} style={styles.text}>
-                    ID: {item.id}, Value: {item.value}, IntValue: {item.intValue}
-                </Text>
-                ))
-            ) : (
-                <Text style={styles.text}>Cargando datos...</Text>
-            )}
-      </ScrollView>
-    </View>
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerImage={
+        <Image
+          source={require('@/assets/images/partial-react-logo.png')}
+          style={styles.reactLogo}
+        />
+      }>
+      <ThemedView style={styles.titleContainer}>
+        <ThemedText type="title">Welcome xde!</ThemedText>
+        <HelloWave />
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+        <ThemedText>
+          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
+          Press{' '}
+          <ThemedText type="defaultSemiBold">
+            {Platform.select({
+              ios: 'cmd + d',
+              android: 'cmd + m',
+              web: 'F12'
+            })}
+          </ThemedText>{' '}
+          to open developer tools.
+        </ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
+        <ThemedText>
+          Tap the Explore tab to learn more about what's included in this starter app.
+        </ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
+        <ThemedText>
+          When you're ready, run{' '}
+          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
+          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
+          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
+          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+        </ThemedText>
+      </ThemedView>
+    </ParallaxScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    text: {
-        fontSize: 16,
-        marginBottom: 10,
-    },
-    scrollContainer: {
-        padding: 20,
-        alignItems: 'center',
-    },
-
-    butonSucess: {
-        marginTop: 10,
-        marginBottom: 10,
-        padding: 10,
-        backgroundColor: '#4CD964'
-    },
-
-    butonDelete: {
-        marginTop: 10,
-        marginBottom: 10,
-        padding: 10,
-        backgroundColor: '#FF3B30'
-    },
-    buttonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: 'bold',
-        textAlign: 'center',
-      },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  stepContainer: {
+    gap: 8,
+    marginBottom: 8,
+  },
+  reactLogo: {
+    height: 178,
+    width: 290,
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+  },
 });
-
-export default App;
